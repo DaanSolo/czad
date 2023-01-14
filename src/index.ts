@@ -21,6 +21,16 @@ AppDataSource.initialize().then(async () => {
         res.json(messages);
     });
 
+    app.get('/api/message/:id', async (req, res, next) => {
+        const message = await AppDataSource.manager.findOneBy(Message, {id: parseInt(req.params.id, 10)});
+
+        if(!message) {
+            return next(createError(404));
+        }
+
+        res.json(message);
+    });
+
     app.post('/api/message', async (req, res, next) => {
         const message = new Message();
         
@@ -40,7 +50,7 @@ AppDataSource.initialize().then(async () => {
 
         io.emit("msgRecive", saved);
 
-        res.json({success: true});
+        res.json(saved);
 
     });
 
@@ -49,5 +59,6 @@ AppDataSource.initialize().then(async () => {
     });
 
     httpServer.listen(3000);
+    console.log('Listening on port 3000');
 
 }).catch(error => console.log(error));
