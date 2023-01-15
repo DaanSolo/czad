@@ -5,13 +5,31 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./events";
 import createError from "http-errors";
+import winston from 'winston';
+import expressWinston from 'express-winston';
 
 
 AppDataSource.initialize().then(async () => {
 
     const app = express();
     const httpServer = createServer(app);
+    const transport = new winston.transports.File({ filename: 'all.log' })
     const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, { path: '/api/socket.io' });
+
+    app.use(expressWinston.logger({
+        transports: [
+          transport
+        ],
+        format: winston.format.combine(
+          winston.format.colorize(),
+          winston.format.json()
+        ),
+        meta: true, // optional: control whether you want to log the meta data about the request (default to true)
+        msg: "HTTP {{req.method}} {{req.url}}", // optional: customize the default logging message. E.g. "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
+        expressFormat: true, // Use the default Express/morgan request formatting. Enabling this will override any msg if true. Will only output colors with colorize set to true
+        colorize: false, // Color the text and status code, using the Express/morgan color palette (text: gray, status: default green, 3XX cyan, 4XX yellow, 5XX red).
+        ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
+      }));
 
     app.use(express.json({limit: '100kb'}));
 
@@ -53,6 +71,15 @@ AppDataSource.initialize().then(async () => {
         res.json(saved);
 
     });
+
+    app.use(expressWinston.errorLogger({
+        transports: [
+          transport
+        ],
+        format: winston.format.combine(
+          winston.format.json()
+        )
+      }));
 
     io.on("connection", (socket) => {
     // ...
