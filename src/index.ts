@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import { AppDataSource } from "./data-source";
 import { Message } from "./entity/Message";
 import express from "express";
@@ -8,12 +9,13 @@ import createError from "http-errors";
 import winston from 'winston';
 import expressWinston from 'express-winston';
 
+dotenv.config();
 
 AppDataSource.initialize().then(async () => {
 
     const app = express();
     const httpServer = createServer(app);
-    const transport = new winston.transports.File({ filename: 'all.log' })
+    const transport = new winston.transports.File({ filename: process.env.LOG_PATH })
     const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, { path: '/api/socket.io' });
 
     app.use(expressWinston.logger({
@@ -31,7 +33,7 @@ AppDataSource.initialize().then(async () => {
         ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
       }));
 
-    app.use(express.json({limit: '100kb'}));
+    app.use(express.json({limit: process.env.JSON_MAX_BODY_SIZE}));
 
     app.get('/api/message', async (req, res) => {
         const messages = await AppDataSource.manager.find(Message);
@@ -85,7 +87,7 @@ AppDataSource.initialize().then(async () => {
     // ...
     });
 
-    httpServer.listen(3000);
-    console.log('Listening on port 3000');
+    httpServer.listen(process.env.PORT);
+    console.log(`Listening on port ${process.env.PORT}`);
 
 }).catch(error => console.log(error));

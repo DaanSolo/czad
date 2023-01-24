@@ -4,7 +4,7 @@ import { Message } from "./entity/Message"
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
-    database: "database.sqlite",
+    database: process.env.DATABASE_PATH,
     synchronize: true,
     logging: false,
     entities: [Message],
