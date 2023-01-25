@@ -14,15 +14,21 @@
       "typescript": "^4.5.2"
    },
    "dependencies": {
+      "@types/bcrypt": "^5.0.0",
+      "@types/express-session": "^1.17.5",
       "@types/http-errors": "^2.0.1",
+      "@types/validator": "^13.7.11",
+      "bcrypt": "^5.1.0",
       "dotenv": "^16.0.3",
       "express": "^4.18.2",
+      "express-session": "^1.17.3",
       "express-winston": "^4.2.0",
       "http-errors": "^2.0.0",
       "reflect-metadata": "^0.1.13",
       "socket.io": "^4.5.4",
       "sqlite3": "^5.0.2",
       "typeorm": "0.3.11",
+      "validator": "^13.7.0",
       "winston": "^3.8.2"
    },
    "scripts": {
