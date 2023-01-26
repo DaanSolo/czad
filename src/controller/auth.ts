@@ -61,6 +61,37 @@ class AuthController {
     });
 
   }
+
+  static async login(req: express.Request,
+    res: express.Response,
+    next: express.NextFunction) {
+      if(!(req.body.username && req.body.username.length > 0 && req.body.password && req.body.password.length > 0)) {
+        return next(createError(400))
+      }
+
+      const user = await AppDataSource.manager.findOneBy(User, {username: req.body.username});
+      if(!user) {
+        return next(createError(403, 'Invalid username or password'));
+      }
+
+      const isCorrect = await bcrypt.compare(req.body.password, user.password)
+      if(!isCorrect) {
+        return next(createError(403, 'Invalid username or password'));
+      }
+
+      req.session.regenerate(() => {
+        req.session.user = user;
+        res.json(user);
+      });
+  }
+
+  static async check(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    res.json(req.session.user);
+  }
 }
 
 export default AuthController;

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from "typeorm"
+import { User } from "./User"
 
 @Entity()
 export class Message {
@@ -9,8 +10,8 @@ export class Message {
     @CreateDateColumn()
     createdDate: Date
 
-    @Column()
-    username: string
+    @ManyToOne(() => User)
+    user: User
 
     @Column()
     content: string

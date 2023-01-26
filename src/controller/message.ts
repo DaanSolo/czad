@@ -8,7 +8,7 @@ class MessageController {
   private constructor() { }
 
   static async list(req: express.Request, res: express.Response) {
-    const messages = await AppDataSource.manager.find(Message);
+    const messages = await AppDataSource.manager.find(Message, {relations: ['user']});
 
     res.json(messages);
   }
@@ -36,11 +36,11 @@ class MessageController {
   ) {
     const message = new Message();
 
-    if (!(req.body.username && req.body.content)) {
+    if (!req.body.content) {
       return next(createError(400));
     }
 
-    message.username = req.body.username;
+    message.user = req.session.user;
     message.content = req.body.content;
 
     let saved: Message;
